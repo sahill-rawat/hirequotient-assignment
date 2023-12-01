@@ -4,18 +4,19 @@ import "./App.css";
 
 function App() {
 
-
   const itemsPerPage = 10;
   const [data, setData] = useState([]);
   const [lastPage, setLastPage] = useState(0);
-  const [readOnly, setReadOnly] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
+  const [editableRows, setEditableRows] = useState([]);
   const [filteredData, setFilteredData] = useState([...data]);
 
-  const toggleReadOnly = () => {
-    setReadOnly((prevReadOnly) => !prevReadOnly);
+  const toggleRowEditable = (index) => {
+    setEditableRows((prevRows) =>
+      prevRows.map((value, idx) => (idx === index ? !value : value))
+    );
   };
 
   const fetchData = async () => {
@@ -79,13 +80,16 @@ function App() {
       }
       return row;
     });
-
-    pagination(updatedData);
+    setData(updatedData);
   };
 
   useEffect(() => {
     fetchData().then((data) => pagination(data));
   }, []);
+
+  useEffect(() => {
+    setEditableRows(filteredData.map(() => false));
+  }, [filteredData]);
 
   useEffect(() => {
     pagination(data);
@@ -110,31 +114,33 @@ function App() {
       </div>
 
       <table className="table">
+
         <thead>
           <tr>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
+            <th className="width-1">{" "}</th>
+            <th className="width-1">ID</th>
+            <th className="width-2">Name</th>
+            <th className="width-2">Email</th>
+            <th className="width-2">Role</th>
+            <th className="width-2">Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {filteredData &&
-            filteredData.map((row) => (
+            filteredData.map((row, index) => (
               <tr key={row.id}>
                 <td>
                   <input
                     type="checkbox"
                     onChange={(e) => handleSelect(row.id)}
                   />
-                </td>
+                </td >
                 <td>
                   <input
-                    style={{ width: "5vw" }}
+                    className="input-style"
                     type="text"
-                    readOnly={readOnly}
+                    readOnly={!editableRows[index]}
                     defaultValue={row.id}
                     onChange={(e) =>
                       handleInputChange(row.id, "id", e.target.value)
@@ -143,8 +149,9 @@ function App() {
                 </td>
                 <td>
                   <input
+                  className="input-style"
                     type="text"
-                    readOnly={readOnly}
+                    readOnly={!editableRows[index]}
                     defaultValue={row.name}
                     onChange={(e) =>
                       handleInputChange(row.id, "name", e.target.value)
@@ -153,8 +160,9 @@ function App() {
                 </td>
                 <td>
                   <input
+                  className="input-style"
                     type="text"
-                    readOnly={readOnly}
+                    readOnly={!editableRows[index]}
                     defaultValue={row.email}
                     onChange={(e) =>
                       handleInputChange(row.id, "email", e.target.value)
@@ -162,9 +170,10 @@ function App() {
                   />
                 </td>
                 <td>
-                  <input
+                  <input 
+                  className="input-style"
                     type="text"
-                    readOnly={readOnly}
+                    readOnly={!editableRows[index]}
                     defaultValue={row.role}
                     onChange={(e) =>
                       handleInputChange(row.id, "role", e.target.value)
@@ -172,8 +181,8 @@ function App() {
                   />
                 </td>
                 <td>
-                  <button onClick={toggleReadOnly}>
-                    {readOnly ? "Edit" : "Save"}
+                  <button onClick={()=>toggleRowEditable(index)}>
+                    {!editableRows[index] ? "Edit" : "Save"}
                   </button>
                   <button onClick={() => handleDelete([row.id], false)}>
                     Delete
