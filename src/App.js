@@ -3,12 +3,20 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([...data]);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [lastPage, setLastPage] = useState(0);
+
+
   const itemsPerPage = 10;
+  const [data, setData] = useState([]);
+  const [lastPage, setLastPage] = useState(0);
+  const [readOnly, setReadOnly] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [filteredData, setFilteredData] = useState([...data]);
+
+  const toggleReadOnly = () => {
+    setReadOnly((prevReadOnly) => !prevReadOnly);
+  };
 
   const fetchData = async () => {
     const url =
@@ -24,22 +32,22 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    fetchData().then((data) => pagination(data));
-  }, []);
-
-  useEffect(() => {
-    pagination(data);
-  }, [currentPage]);
-
   const pagination = (data) => {
-    setData(data);
     const start = currentPage * itemsPerPage,
       end = (currentPage + 1) * itemsPerPage;
     const newData = data.slice(start, end);
     setFilteredData(newData);
     const len = data.length;
     setLastPage(len < itemsPerPage ? 0 : Math.ceil(len / itemsPerPage) - 1);
+  };
+
+  const handleSearchInputChange = () => {
+    const filtered = data.filter((row) => {
+      return Object.values(row).some((value) =>
+        value.toString().toLowerCase().startsWith(searchInput.toLowerCase())
+      );
+    });
+    pagination(filtered);
   };
 
   const handleDelete = (arr, deleteSelectedFlag) => {
@@ -51,6 +59,7 @@ function App() {
     const newData = data.filter((item) => !arr.includes(item.id));
 
     if (deleteSelectedFlag === true) setSelectedRows([]);
+    setData(newData);
     pagination(newData);
   };
 
@@ -63,15 +72,41 @@ function App() {
     }
   };
 
+  const handleInputChange = (id, columnName, newValue) => {
+    const updatedData = data.map((row) => {
+      if (row.id === id) {
+        return { ...row, [columnName]: newValue };
+      }
+      return row;
+    });
+
+    pagination(updatedData);
+  };
+
   useEffect(() => {
-    console.log(selectedRows);
-  }, [selectedRows]);
+    fetchData().then((data) => pagination(data));
+  }, []);
+
+  useEffect(() => {
+    pagination(data);
+  }, [currentPage]);
 
   return (
     <div className="wrapper">
       <div className="search-bar">
-        <input className="search-i" type={"text"} placeholder="Search"></input>
-        <button className="search-icon">search</button>
+        <input
+          className="search-i"
+          type={"text"}
+          placeholder="Search"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        <button
+          className="search-icon"
+          onClick={() => handleSearchInputChange()}
+        >
+          search
+        </button>
       </div>
 
       <table className="table">
@@ -92,15 +127,54 @@ function App() {
                 <td>
                   <input
                     type="checkbox"
-                    onChange={() => handleSelect(row.id)}
+                    onChange={(e) => handleSelect(row.id)}
                   />
                 </td>
-                <td>{row.id}</td>
-                <td>{row.name}</td>
-                <td>{row.email}</td>
-                <td>{row.role}</td>
                 <td>
-                  <button>Edit</button>
+                  <input
+                    style={{ width: "5vw" }}
+                    type="text"
+                    readOnly={readOnly}
+                    defaultValue={row.id}
+                    onChange={(e) =>
+                      handleInputChange(row.id, "id", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    readOnly={readOnly}
+                    defaultValue={row.name}
+                    onChange={(e) =>
+                      handleInputChange(row.id, "name", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    readOnly={readOnly}
+                    defaultValue={row.email}
+                    onChange={(e) =>
+                      handleInputChange(row.id, "email", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    readOnly={readOnly}
+                    defaultValue={row.role}
+                    onChange={(e) =>
+                      handleInputChange(row.id, "role", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <button onClick={toggleReadOnly}>
+                    {readOnly ? "Edit" : "Save"}
+                  </button>
                   <button onClick={() => handleDelete([row.id], false)}>
                     Delete
                   </button>
