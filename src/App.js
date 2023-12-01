@@ -1,6 +1,8 @@
+import "./App.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import "./App.css";
+import { AiFillDelete } from "react-icons/ai";
+import { FaSave, FaEdit } from "react-icons/fa";
 
 function App() {
 
@@ -129,7 +131,7 @@ function App() {
         <tbody>
           {filteredData &&
             filteredData.map((row, index) => (
-              <tr key={row.id}>
+              <tr id="ht" key={row.id}>
                 <td>
                   <input
                     type="checkbox"
@@ -180,12 +182,12 @@ function App() {
                     }
                   />
                 </td>
-                <td>
+                <td className="center">
                   <button onClick={()=>toggleRowEditable(index)}>
-                    {!editableRows[index] ? "Edit" : "Save"}
+                    {!editableRows[index] ? <FaEdit /> : <FaSave />}
                   </button>
                   <button onClick={() => handleDelete([row.id], false)}>
-                    Delete
+                    <AiFillDelete/>
                   </button>
                 </td>
               </tr>

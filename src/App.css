@@ -1,30 +1,32 @@
 .wrapper {
-  min-height: 100vh;
+  margin: auto;
+  height: 100vh;
   min-width: 100vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.table {
-  word-wrap: break-word;
-  height: 80vh;
-  width: 95%;
-  border: 2px solid black;
+.center {
   text-align: center;
 }
 
+.center > button {
+
+  width: 40%;
+  margin: 3px;
+}
+
+.table {
+  margin: auto;
+  word-wrap: break-word;
+  width: 95%;
+  border: 2px solid #000000;
+}
+
 thead {
-  height: 5%;
+  height: 5vh;
 }
 
 tbody {
-  height: 95%;
-}
-
-tbody > tr {
-  height: 9%;
-  width: 16.5%;
+  height: 70vh;
 }
 
 tbody > tr:hover {
@@ -35,13 +37,12 @@ tbody > tr:hover {
   width: 100%;
   text-align: center;
   overflow-x: auto; 
-  text-overflow:ellipsis;
+  text-overflow: ellipsis;
 }
 
 .table thead{
   border-bottom: 1px solid black;
 }
-
 
 .width-1 {
   width: 5%;
@@ -94,36 +95,3 @@ button {
   border-radius: 4px;
   background-color: aliceblue;
 }
-
-/* @media screen and (max-width: 768px) {
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table td,
-  .table th {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-
-  .table thead {
-    display: none;
-  }
-
-  .table tr {
-    border-bottom: 1px solid #ddd;
-    display: block;
-    margin-bottom: 10px;
-  }
-
-  .table td:last-child {
-    border-bottom: 0;
-  }
-
-  .table td:before {
-    content: attr(data-label);
-    float: left;
-    font-weight: bold;
-  }
-} */
