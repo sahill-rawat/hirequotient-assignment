@@ -3,11 +3,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { AiFillDelete } from "react-icons/ai";
 import { FaSave, FaEdit } from "react-icons/fa";
+import Pagination from "react-js-pagination";
 
 function App() {
 
   const itemsPerPage = 10;
   const [data, setData] = useState([]);
+  const [dataToRender, setDataToRender] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
   const [lastPage, setLastPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
@@ -27,7 +30,7 @@ function App() {
     try {
       const res = await axios.get(url);
       setData(res.data);
-      setFilteredData(res.data);
+      setDataToRender(res.data);
       return res.data;
     } catch (error) {
       console.log("Error fetching forecast data:", error);
@@ -35,13 +38,14 @@ function App() {
     }
   };
 
+  const calculateTotalPages = (len) => (len < itemsPerPage ? 0 : Math.ceil(len / itemsPerPage) - 1);
+  
   const pagination = (data) => {
     const start = currentPage * itemsPerPage,
-      end = (currentPage + 1) * itemsPerPage;
+    end = (currentPage + 1) * itemsPerPage;
     const newData = data.slice(start, end);
     setFilteredData(newData);
-    const len = data.length;
-    setLastPage(len < itemsPerPage ? 0 : Math.ceil(len / itemsPerPage) - 1);
+    setLastPage(calculateTotalPages(data.length));
   };
 
   const handleSearchInputChange = () => {
@@ -50,6 +54,7 @@ function App() {
         value.toString().toLowerCase().startsWith(searchInput.toLowerCase())
       );
     });
+    setDataToRender(filtered);
     pagination(filtered);
   };
 
@@ -63,7 +68,12 @@ function App() {
 
     if (deleteSelectedFlag === true) setSelectedRows([]);
     setData(newData);
+    setDataToRender(newData);
     pagination(newData);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber - 1);
   };
 
   const handleSelect = (id) => {
@@ -72,6 +82,20 @@ function App() {
       setSelectedRows((prev) => prev.filter((val) => val !== id));
     } else {
       setSelectedRows((prev) => prev.concat([id]));
+    }
+  };
+
+  const handleSelectAll = (selectAll) => {
+    const allIds = filteredData.map((item) => item.id);
+
+    if (selectedRows.length === allIds.length) {
+      setSelectedRows([]);
+      setSelectAll(false);
+      setEditableRows(filteredData.map(() => false));
+    } else {
+      setSelectedRows(allIds);
+      setSelectAll(true);
+      setEditableRows(filteredData.map(() => true));
     }
   };
 
@@ -85,6 +109,20 @@ function App() {
     setData(updatedData);
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearchInputChange();
+    }
+  };
+
+  const handleKeyPressForTable = (e, index) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      toggleRowEditable(index);
+    }
+  };
+
   useEffect(() => {
     fetchData().then((data) => pagination(data));
   }, []);
@@ -94,32 +132,58 @@ function App() {
   }, [filteredData]);
 
   useEffect(() => {
-    pagination(data);
+    pagination(dataToRender);
   }, [currentPage]);
+
+  useEffect(() => {
+    console.log(selectedRows);
+  }, [selectedRows]);
+
+  const doit = () => {
+    if (searchInput) {
+      // console.log("triiggg " + filteredData.length);
+
+        console.log("page - " + calculateTotalPages(dataToRender.length));
+        return calculateTotalPages(dataToRender.length);
+    }
+    return lastPage;
+  }
 
   return (
     <div className="wrapper">
-      <div className="search-bar">
-        <input
-          className="search-i"
-          type={"text"}
-          placeholder="Search"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
-        <button
+
+      <div className="header">
+        <div className="search-bar">
+          <input
+            className="search-i"
+            type={"text"}
+            placeholder="Search"
+            value={searchInput}
+            onKeyDown={handleKeyPress}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <button
           className="search-icon"
           onClick={() => handleSearchInputChange()}
         >
           search
         </button>
+        </div>
+        <button className="top-delete-btn" onClick={() => handleDelete(selectedRows, true)}>
+          <AiFillDelete />
+        </button>
       </div>
 
       <table className="table">
-
         <thead>
           <tr>
-            <th className="width-1">{" "}</th>
+            <th className="width-1">
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={handleSelectAll}
+              />
+            </th>
             <th className="width-1">ID</th>
             <th className="width-2">Name</th>
             <th className="width-2">Email</th>
@@ -136,14 +200,16 @@ function App() {
                   <input
                     type="checkbox"
                     onChange={(e) => handleSelect(row.id)}
+                    checked={selectedRows.includes(row.id)}
                   />
-                </td >
+                </td>
                 <td>
                   <input
                     className="input-style"
                     type="text"
                     readOnly={!editableRows[index]}
                     defaultValue={row.id}
+                    onKeyDown={(e) => handleKeyPressForTable(e, index)}
                     onChange={(e) =>
                       handleInputChange(row.id, "id", e.target.value)
                     }
@@ -151,10 +217,11 @@ function App() {
                 </td>
                 <td>
                   <input
-                  className="input-style"
+                    className="input-style"
                     type="text"
                     readOnly={!editableRows[index]}
                     defaultValue={row.name}
+                    onKeyDown={(e) => handleKeyPressForTable(e, index)}
                     onChange={(e) =>
                       handleInputChange(row.id, "name", e.target.value)
                     }
@@ -162,32 +229,40 @@ function App() {
                 </td>
                 <td>
                   <input
-                  className="input-style"
+                    className="input-style"
                     type="text"
                     readOnly={!editableRows[index]}
                     defaultValue={row.email}
+                    onKeyDown={(e) => handleKeyPressForTable(e, index)}
                     onChange={(e) =>
                       handleInputChange(row.id, "email", e.target.value)
                     }
                   />
                 </td>
                 <td>
-                  <input 
-                  className="input-style"
+                  <input
+                    className="input-style"
                     type="text"
                     readOnly={!editableRows[index]}
                     defaultValue={row.role}
+                    onKeyDown={(e) => handleKeyPressForTable(e, index)}
                     onChange={(e) =>
                       handleInputChange(row.id, "role", e.target.value)
                     }
                   />
                 </td>
                 <td className="center">
-                  <button onClick={()=>toggleRowEditable(index)}>
+                  <button
+                    className="edit-save"
+                    onClick={() => toggleRowEditable(index)}
+                  >
                     {!editableRows[index] ? <FaEdit /> : <FaSave />}
                   </button>
-                  <button onClick={() => handleDelete([row.id], false)}>
-                    <AiFillDelete/>
+                  <button
+                    className="delete"
+                    onClick={() => handleDelete([row.id], false)}
+                  >
+                    <AiFillDelete />
                   </button>
                 </td>
               </tr>
@@ -196,30 +271,19 @@ function App() {
       </table>
 
       <div className="paginator">
-        <button className="first-page" onClick={() => setCurrentPage(0)}>
-          First
-        </button>
-        <button
-          className="previous-page"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-        >
-          Previous
-        </button>
-        <button
-          className="next-page"
-          onClick={() => {
-            console.log(lastPage);
-            setCurrentPage((prev) => Math.min(prev + 1, lastPage));
-          }}
-        >
-          Next
-        </button>
-        <button className="last-page" onClick={() => setCurrentPage(lastPage)}>
-          Last
-        </button>
-        <button onClick={() => handleDelete(selectedRows, true)}>
-          Delete Selected
-        </button>
+      <Pagination
+          innerClass='flex'
+          item-class='nav-btn'
+          itemClassFirst='first-page'
+          itemClassPrev='prev-page'
+          itemClassNext='next-page'
+          itemClassLast='last-page'
+          activePage={currentPage+1}
+          itemsCountPerPage={10}
+          totalItemsCount={dataToRender.length}
+          pageRangeDisplayed={Math.min(5, doit()+1)}
+          onChange={handlePageChange}
+        />
       </div>
     </div>
   );

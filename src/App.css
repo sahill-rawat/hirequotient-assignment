@@ -1,3 +1,4 @@
+/* general */
 .wrapper {
   margin: auto;
   height: 100vh;
@@ -8,11 +9,55 @@
   text-align: center;
 }
 
+
 .center > button {
 
   width: 40%;
   margin: 3px;
 }
+
+/* header */
+
+.search-i {
+  border: 3px solid aliceblue;
+  height: 5vh;
+  width: 70%;
+}
+
+.search-icon {
+  width: 25%;
+  height: 6vh;
+}
+
+.search-bar { 
+  width: 60%;
+}
+
+.top-delete-btn {
+  background-color: rgb(252, 81, 81);
+  position: absolute;
+  top: 2vh;
+  right: 5px;
+  height: 6vh;
+  width: 6vh;
+}
+
+button {
+  border: 1px solid black;
+  border-radius: 4px;
+  background-color: aliceblue;
+}
+
+.header {
+  align-items: center;
+  justify-content: center;
+  height: 10vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: row; 
+}
+
+/* table */
 
 .table {
   margin: auto;
@@ -56,42 +101,40 @@ input {
   border: 0;
 }
 
+
+
+/* pagination */
+
+
 .paginator {
-  gap: 5px;
+  width: 100%;
   align-items: center;
   justify-content: center;
   height: 10vh;
   display: flex;
   flex-direction: row;
 }
-.paginator > button {
-  height: 5vh;
-}
 
-.search-i {
-  border: 3px solid aliceblue;
-  height: 5vh;
-  width: 50%;
-}
 
-.search-icon {
-  min-width: 10%;
-  max-width: 15%;
-  height: 6vh;
-}
-
-.search-bar {
-  gap: 2px;
+.flex {
+  padding: 1vh;
+  gap: 5px;
+  list-style: none;
   align-items: center;
-  justify-content: center;
-  height: 10vh;
-  width: 100%;
+  justify-content: space-around;
   display: flex;
-  flex-direction: row; 
+  flex-direction: row;
+  height: 8vh;
+  background-color: aliceblue;
 }
 
-button {
-  border: 1px solid black;
-  border-radius: 4px;
-  background-color: aliceblue;
+.paginator > ul > li {
+  text-align: center;
+  width: 5vh;
+  height: 5vh;
+}
+
+a {
+  font-size: larger;
+  text-decoration: none;
 }
