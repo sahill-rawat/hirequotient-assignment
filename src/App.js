@@ -66,9 +66,13 @@ function App() {
     }
     const newData = data.filter((item) => !arr.includes(item.id));
 
-    if (deleteSelectedFlag === true) setSelectedRows([]);
+    if (deleteSelectedFlag === true) {
+       setSelectedRows([]); 
+       setSelectAll(false);
+    }
     setData(newData);
     setDataToRender(newData);
+    setFilteredData(newData);
     pagination(newData);
   };
 
@@ -91,11 +95,9 @@ function App() {
     if (selectedRows.length === allIds.length) {
       setSelectedRows([]);
       setSelectAll(false);
-      setEditableRows(filteredData.map(() => false));
     } else {
       setSelectedRows(allIds);
       setSelectAll(true);
-      setEditableRows(filteredData.map(() => true));
     }
   };
 
@@ -135,14 +137,8 @@ function App() {
     pagination(dataToRender);
   }, [currentPage]);
 
-  useEffect(() => {
-    console.log(selectedRows);
-  }, [selectedRows]);
-
   const doit = () => {
     if (searchInput) {
-      // console.log("triiggg " + filteredData.length);
-
         console.log("page - " + calculateTotalPages(dataToRender.length));
         return calculateTotalPages(dataToRender.length);
     }
@@ -163,11 +159,11 @@ function App() {
             onChange={(e) => setSearchInput(e.target.value)}
           />
           <button
-          className="search-icon"
-          onClick={() => handleSearchInputChange()}
-        >
+            className="search-icon"
+            onClick={() => handleSearchInputChange()}
+          >
           search
-        </button>
+          </button>
         </div>
         <button className="top-delete-btn" onClick={() => handleDelete(selectedRows, true)}>
           <AiFillDelete />
@@ -195,7 +191,7 @@ function App() {
         <tbody>
           {filteredData &&
             filteredData.map((row, index) => (
-              <tr id="ht" key={row.id}>
+              <tr id="ht" className={selectedRows.includes(row.id) ? 'bg-gray' : ''} key={row.id}>
                 <td>
                   <input
                     type="checkbox"
@@ -271,19 +267,19 @@ function App() {
       </table>
 
       <div className="paginator">
-      <Pagination
-          innerClass='flex'
-          item-class='nav-btn'
-          itemClassFirst='first-page'
-          itemClassPrev='prev-page'
-          itemClassNext='next-page'
-          itemClassLast='last-page'
-          activePage={currentPage+1}
-          itemsCountPerPage={10}
-          totalItemsCount={dataToRender.length}
-          pageRangeDisplayed={Math.min(5, doit()+1)}
-          onChange={handlePageChange}
-        />
+        <Pagination
+            innerClass='flex'
+            item-class='nav-btn'
+            itemClassFirst='first-page'
+            itemClassPrev='prev-page'
+            itemClassNext='next-page'
+            itemClassLast='last-page'
+            activePage={currentPage+1}
+            itemsCountPerPage={10}
+            totalItemsCount={dataToRender.length}
+            pageRangeDisplayed={Math.min(5, doit()+1)}
+            onChange={handlePageChange}
+          />
       </div>
     </div>
   );

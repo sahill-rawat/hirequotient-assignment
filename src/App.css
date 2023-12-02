@@ -30,14 +30,21 @@
 }
 
 .search-bar { 
-  width: 60%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  position: absolute;
+  top: 2vh;
+  left: 2vw;
+  width: 65%;
 }
 
 .top-delete-btn {
   background-color: rgb(252, 81, 81);
   position: absolute;
   top: 2vh;
-  right: 5px;
+  right: 8px;
+  /* padding: auto; */
   height: 6vh;
   width: 6vh;
 }
@@ -50,7 +57,7 @@ button {
 
 .header {
   align-items: center;
-  justify-content: center;
+  justify-content:space-around;
   height: 10vh;
   width: 100vw;
   display: flex;
@@ -62,16 +69,21 @@ button {
 .table {
   margin: auto;
   word-wrap: break-word;
+  height: 70vh;
   width: 95%;
   border: 2px solid #000000;
 }
 
 thead {
-  height: 5vh;
+  height: 10%;
+}
+
+.bg-gray {
+  background-color: grey;
 }
 
 tbody {
-  height: 70vh;
+  height: 50vh;
 }
 
 tbody > tr:hover {
@@ -102,7 +114,6 @@ input {
 }
 
 
-
 /* pagination */
 
 
@@ -113,6 +124,8 @@ input {
   height: 10vh;
   display: flex;
   flex-direction: row;
+  position: absolute;
+  bottom: 0;
 }
 
 
